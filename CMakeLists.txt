@@ -10,6 +10,8 @@ qt_add_executable(HuffmanZip
     main.cpp
     mainwindow.cpp
     mainwindow.h
+    ziputil.h ziputil.cpp
+    huffmannode.h huffmannode.cpp
 )
 
 target_link_libraries(HuffmanZip
