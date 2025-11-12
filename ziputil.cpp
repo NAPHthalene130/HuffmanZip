@@ -29,7 +29,7 @@ void ZipUtil::calFileFreq(std::vector<int> &freq, std::string filePath)
         if (inputFile.gcount() > 0) {
             size_t bytesRead = inputFile.gcount();
             for (size_t i = 0; i < bytesRead; ++i) {
-                freq[buffer[i]]++;
+                freq[(unsigned char)buffer[i]]++;
             }
         }
         inputFile.close();
