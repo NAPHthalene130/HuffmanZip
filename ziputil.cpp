@@ -13,12 +13,11 @@ void ZipUtil::calFileFreq(std::vector<int> &freq, std::string filePath)
     namespace fs = std::filesystem;
     int BUFFER_SIZE = 1024;
     std::fstream inputFile(filePath, std::ios::in | std::ios::binary);
-
-    if (!inputFile.is_open()) {
-        std::cerr << "[ERROR][ZipUtil-calFileFreq-1]: Can't open file: " << filePath << std::endl;
-    }
-
+    std::cout << "TEST1:" << filePath << std::endl;
     fs::path p(filePath);
+    if (!fs::exists(p)) {
+        std::cerr << "[ERROR][ZipUtil-calFileFreq-1]: Path is not existing" << filePath << std::endl;
+    }
     if (fs::is_regular_file(p)) {
         //当前路径是文件
         std::vector<char> buffer(BUFFER_SIZE);
