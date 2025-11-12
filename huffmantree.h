@@ -11,6 +11,7 @@ public:
     void appendNode(HuffmanNode node);
     void createTree(std::vector<int> freqList);
     std::vector<HuffmanNode> getTree();
+    std::map<unsigned char, std::vector<bool>> getBitMap();
 private:
     int rootIndex;
     int size;

@@ -56,7 +56,7 @@ void HuffmanTree::createTree(std::vector<int> freqList)
     HuffmanNode rootNode = pq.top(); pq.pop();
     this->rootIndex = rootNode.getIndex();
 
-    for (int i = 0 ; i < 255; i++) {
+    for (int i = 0 ; i < 256; i++) {
         int nowIndex = i;
         while (nowIndex != -1) {
             int pIndex = huffmanTree[nowIndex].getParentIndex();
@@ -80,4 +80,9 @@ void HuffmanTree::createTree(std::vector<int> freqList)
 std::vector<HuffmanNode> HuffmanTree::getTree()
 {
     return this->huffmanTree;
+}
+
+std::map<unsigned char, std::vector<bool> > HuffmanTree::getBitMap()
+{
+    return this->charToBit;
 }

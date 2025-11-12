@@ -68,8 +68,21 @@ void ZipUtil::enCode(const std::string filePath)
     std::vector<int> freq(256,0);
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
+    std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
     for (int i = 0 ; i < huffTree.getTree().size(); i++) {
         HuffmanNode node = huffTree.getTree()[i];
         cout <<"Index:"<<node.getIndex()<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
+    }
+
+    for (int i = 0 ; i < 256; i++) {
+        cout << i << ":";
+        for (bool value: bitMap[(unsigned char)i]) {
+            if (value) {
+                cout << 1;
+            } else {
+                cout << 0;
+            }
+        }
+        cout << endl;
     }
 }
