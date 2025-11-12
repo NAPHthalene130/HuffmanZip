@@ -10,9 +10,18 @@ public:
     void setLeftChildIndex(int index);
     void setRightChildIndex(int index);
     void setParentIndex(int index);
+    void setIndex(int index);
     int getLeftChildIndex();
     int getRightChildIndex();
     int getParentChildIndex();
+    int getFreq();
+    int getIndex();
+    struct freqCmp {
+        bool operator() (const HuffmanNode node1, const HuffmanNode node2) const {
+            return node1.freq > node2.freq;
+        }
+    };
+
 private:
     int parentIndex;
     int leftChildIndex;
@@ -20,6 +29,7 @@ private:
     int freq;
     char value;
     bool isLeaf;
+    int myIndex;
 };
 
 #endif // HUFFMANNODE_H
