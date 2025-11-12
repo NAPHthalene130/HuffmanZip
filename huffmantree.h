@@ -13,6 +13,8 @@ private:
     int rootIndex;
     int size;
     std::vector<HuffmanNode> huffmanTree;
+private:
+    std::vector<HuffmanNode> huffmanTreeTable;
 };
 
 #endif // HUFFMANTREE_H

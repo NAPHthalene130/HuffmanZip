@@ -55,3 +55,5 @@ void HuffmanTree::createTree(std::vector<int> freqList)
     this->rootIndex = rootNode.getIndex();
 
 }
+
+HuffmanTree::HuffmanTree() {}
