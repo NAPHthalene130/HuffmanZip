@@ -33,7 +33,8 @@ void HuffmanTree::createTree(std::vector<int> freqList)
     int index = 0;
     for (int i = 0 ; i < freqList.size(); i++) {
         if (freqList[i] != 0) {
-            HuffmanNode newNode(freqList[i], (unsigned char)i);
+            unsigned char c =  (unsigned char)i;
+            HuffmanNode newNode(freqList[i], c);
             newNode.setIndex(index);
             pq.push(newNode);
             this->appendNode(newNode);

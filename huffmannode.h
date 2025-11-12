@@ -5,7 +5,7 @@ class HuffmanNode
 {
 public:
     HuffmanNode();
-    HuffmanNode(int freq, char value);
+    HuffmanNode(int freq, unsigned char value);
     HuffmanNode(int freq);
     void setLeftChildIndex(int index);
     void setRightChildIndex(int index);

@@ -26,9 +26,10 @@ HuffmanNode::HuffmanNode() {
 }
 
 //叶子构造
-HuffmanNode::HuffmanNode(int freq, char value)
+HuffmanNode::HuffmanNode(int freq, unsigned char value)
 {
     this->freq = freq;
+    this->value = value;
     isLeaf = true;
 }
 
