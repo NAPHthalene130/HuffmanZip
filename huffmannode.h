@@ -16,6 +16,8 @@ public:
     int getParentIndex();
     int getFreq();
     int getIndex();
+    unsigned char getValue();
+    bool isLeaf = false;
     struct freqCmp {
         bool operator() (const HuffmanNode node1, const HuffmanNode node2) const {
             return node1.freq > node2.freq;
@@ -28,7 +30,6 @@ private:
     int rightChildIndex = -1;
     int freq = 0;
     unsigned char value;
-    bool isLeaf;
     int myIndex = -1;
 };
 

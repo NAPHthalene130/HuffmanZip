@@ -71,11 +71,12 @@ void ZipUtil::enCode(const std::string filePath)
     std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
     for (int i = 0 ; i < huffTree.getTree().size(); i++) {
         HuffmanNode node = huffTree.getTree()[i];
-        cout <<"Index:"<<node.getIndex()<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
+        cout <<"Index:"<<i<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
     }
 
     for (int i = 0 ; i < 256; i++) {
-        cout << i << ":";
+        if (bitMap.find((unsigned char)i) == bitMap.end()) {continue;}
+        else cout << i << ": ";
         for (bool value: bitMap[(unsigned char)i]) {
             if (value) {
                 cout << 1;

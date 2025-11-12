@@ -56,23 +56,26 @@ void HuffmanTree::createTree(std::vector<int> freqList)
     HuffmanNode rootNode = pq.top(); pq.pop();
     this->rootIndex = rootNode.getIndex();
 
-    for (int i = 0 ; i < 256; i++) {
+    for (int i = 0 ; i < 256 && i < huffmanTree.size(); i++) {
+        if (!huffmanTree[i].isLeaf) {
+            continue;
+        }
         int nowIndex = i;
         while (nowIndex != -1) {
             int pIndex = huffmanTree[nowIndex].getParentIndex();
             if (pIndex == -1) break;
             if (nowIndex == huffmanTree[pIndex].getLeftChildIndex()) {
                 //当前节点是父节点的左节点
-                charToBit[(unsigned char)i].push_back(0);
+                charToBit[huffmanTree[i].getValue()].push_back(0);
             } else if (nowIndex == huffmanTree[pIndex].getRightChildIndex()) {
                 //当前节点是父节点的右节点
-                charToBit[(unsigned char)i].push_back(1);
+                charToBit[huffmanTree[i].getValue()].push_back(1);
             } else {
                 std::cerr << "[ERROR][HuffmanTree-createTree-1]: Unknow Index" << std::endl;
             }
             nowIndex = pIndex;
         }
-        std::reverse(charToBit[(unsigned char)i].begin(),charToBit[(unsigned char)i].end());
+        std::reverse(charToBit[huffmanTree[i].getValue()].begin(),charToBit[huffmanTree[i].getValue()].end());
     }
 
 }

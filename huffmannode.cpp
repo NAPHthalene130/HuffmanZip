@@ -15,6 +15,11 @@ int HuffmanNode::getIndex()
     return this->myIndex;
 }
 
+unsigned char HuffmanNode::getValue()
+{
+    return this->value;
+}
+
 //默认构造
 HuffmanNode::HuffmanNode() {
 
