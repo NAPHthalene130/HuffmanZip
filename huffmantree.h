@@ -1,6 +1,7 @@
 #ifndef HUFFMANTREE_H
 #define HUFFMANTREE_H
 #include <vector>
+#include <map>
 #include "huffmannode.h"
 class HuffmanTree
 {
@@ -14,6 +15,7 @@ private:
     int rootIndex;
     int size;
     std::vector<HuffmanNode> huffmanTree;
+    std::map<unsigned char, std::vector<bool>> charToBit;
 };
 
 #endif // HUFFMANTREE_H

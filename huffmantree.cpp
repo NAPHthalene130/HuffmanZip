@@ -1,6 +1,8 @@
 #include "huffmantree.h"
 #include "huffmannode.h"
 #include <queue>
+#include <iostream>
+#include <algorithm>
 HuffmanTree::HuffmanTree() {}
 
 HuffmanTree::HuffmanTree(std::vector<int> freqList)
@@ -53,6 +55,26 @@ void HuffmanTree::createTree(std::vector<int> freqList)
     }
     HuffmanNode rootNode = pq.top(); pq.pop();
     this->rootIndex = rootNode.getIndex();
+
+    for (int i = 0 ; i < 255; i++) {
+        int nowIndex = i;
+        while (nowIndex != -1) {
+            int pIndex = huffmanTree[nowIndex].getParentIndex();
+            if (pIndex == -1) break;
+            if (nowIndex == huffmanTree[pIndex].getLeftChildIndex()) {
+                //当前节点是父节点的左节点
+                charToBit[(unsigned char)i].push_back(0);
+            } else if (nowIndex == huffmanTree[pIndex].getRightChildIndex()) {
+                //当前节点是父节点的右节点
+                charToBit[(unsigned char)i].push_back(1);
+            } else {
+                std::cerr << "[ERROR][HuffmanTree-createTree-1]: Unknow Index" << std::endl;
+            }
+            nowIndex = pIndex;
+        }
+        std::reverse(charToBit[(unsigned char)i].begin(),charToBit[(unsigned char)i].end());
+    }
+
 }
 
 std::vector<HuffmanNode> HuffmanTree::getTree()

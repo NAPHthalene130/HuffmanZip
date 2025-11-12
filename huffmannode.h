@@ -27,7 +27,7 @@ private:
     int leftChildIndex = -1;
     int rightChildIndex = -1;
     int freq = 0;
-    char value;
+    unsigned char value;
     bool isLeaf;
     int myIndex = -1;
 };
