@@ -2,7 +2,4 @@
 
 ZipUtil::ZipUtil() {}
 
-ZipUtil &ZipUtil::getInstance()
-{
-
-}
+ZipUtil &ZipUtil::getInstance() {}

@@ -13,6 +13,12 @@ public:
     int getLeftChildIndex();
     int getRightChildIndex();
     int getParentChildIndex();
+    struct freqCmp {
+        bool operator() (const HuffmanNode node1, const HuffmanNode node2) const {
+            return node1.freq > node2.freq;
+        }
+    };
+
 private:
     int parentIndex;
     int leftChildIndex;

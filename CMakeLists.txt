@@ -12,6 +12,7 @@ qt_add_executable(HuffmanZip
     mainwindow.h
     ziputil.h ziputil.cpp
     huffmannode.h huffmannode.cpp
+    huffmantree.h huffmantree.cpp
 )
 
 target_link_libraries(HuffmanZip
