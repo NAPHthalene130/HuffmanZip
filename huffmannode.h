@@ -13,7 +13,7 @@ public:
     void setIndex(int index);
     int getLeftChildIndex();
     int getRightChildIndex();
-    int getParentChildIndex();
+    int getParentIndex();
     int getFreq();
     int getIndex();
     struct freqCmp {
@@ -23,13 +23,13 @@ public:
     };
 
 private:
-    int parentIndex;
-    int leftChildIndex;
-    int rightChildIndex;
-    int freq;
+    int parentIndex = -1;
+    int leftChildIndex = -1;
+    int rightChildIndex = -1;
+    int freq = 0;
     char value;
     bool isLeaf;
-    int myIndex;
+    int myIndex = -1;
 };
 
 #endif // HUFFMANNODE_H

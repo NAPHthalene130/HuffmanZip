@@ -1,4 +1,5 @@
 #include "ziputil.h"
+#include "huffmantree.h"
 #include <vector>
 #include <fstream>
 #include <string>
@@ -10,7 +11,6 @@ ZipUtil::~ZipUtil() {}
 void ZipUtil::calFileFreq(std::vector<int> &freq, std::string filePath)
 {
     namespace fs = std::filesystem;
-    std::vector<int> read;
     int BUFFER_SIZE = 1024;
     std::fstream inputFile(filePath, std::ios::in | std::ios::binary);
 
@@ -26,13 +26,11 @@ void ZipUtil::calFileFreq(std::vector<int> &freq, std::string filePath)
             for (unsigned char c : buffer) {
                 freq[c]++;
             }
-            read.insert(read.end(), buffer.begin(), buffer.end());
         }
         if (inputFile.gcount() > 0) {
             size_t bytesRead = inputFile.gcount();
-            freq.insert(freq.end(), buffer.begin(), buffer.begin() + bytesRead);
             for (size_t i = 0; i < bytesRead; ++i) {
-                read.push_back(buffer[i]);
+                freq[buffer[i]]++;
             }
         }
         inputFile.close();
@@ -66,9 +64,13 @@ void ZipUtil::deCode(const std::string filePath)
 //压缩文件
 void ZipUtil::enCode(const std::string filePath)
 {
+    using std::cout;
+    using std::endl;
     std::vector<int> freq(256,0);
     calFileFreq(freq,filePath);
-    for (int i = 0; i < 256; i++) {
-        std::cout << i << ": " << freq[i] << std::endl;
+    HuffmanTree huffTree(freq);
+    for (int i = 0 ; i < huffTree.getTree().size(); i++) {
+        HuffmanNode node = huffTree.getTree()[i];
+        cout <<"Index:"<<node.getIndex()<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
     }
 }

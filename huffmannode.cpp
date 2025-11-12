@@ -61,7 +61,7 @@ int HuffmanNode::getRightChildIndex()
     return this->rightChildIndex;
 }
 
-int HuffmanNode::getParentChildIndex()
+int HuffmanNode::getParentIndex()
 {
-    return this->rightChildIndex;
+    return this->parentIndex;
 }
