@@ -2,12 +2,15 @@
 #include "ziputil.h"
 #include <QApplication>
 #include <string>
+#include <filesystem>
 int main(int argc, char *argv[])
 {
+    namespace fs = std::filesystem;
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    std::string inputPath = "H:\\CODE\\QT\\HuffmanZip\\TEST";
+    fs::path testPath = "C:/Users/NAPH/Desktop/QT/HuffmanZip/TEST";
+    std::string inputPath = testPath.string();
     ZipUtil::enCode(inputPath);
     return a.exec();
 }

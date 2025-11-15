@@ -86,4 +86,21 @@ void ZipUtil::enCode(const std::string filePath)
         }
         cout << endl;
     }
+
+    //测试
+    std::string testLine = "abcdefg";
+    for (int i = 0 ; i < testLine.size(); i++) {
+        char nowChar = testLine[i];
+        std::vector<bool> boolPath = bitMap[nowChar];
+        int nowIndex = huffTree.getrootIndex();
+        for (bool nowBool : boolPath) {
+            if (nowBool) {
+                nowIndex = huffTree.getTree()[nowIndex].getRightChildIndex();
+            } else {
+                nowIndex = huffTree.getTree()[nowIndex].getLeftChildIndex();
+            }
+        }
+        cout << huffTree.getTree()[nowIndex].getValue();
+    }
+    cout << endl;
 }

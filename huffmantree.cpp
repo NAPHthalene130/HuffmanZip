@@ -90,3 +90,8 @@ std::map<unsigned char, std::vector<bool> > HuffmanTree::getBitMap()
 {
     return this->charToBit;
 }
+
+int HuffmanTree::getrootIndex()
+{
+    return this->rootIndex;
+}
