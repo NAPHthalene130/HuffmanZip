@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 #include <filesystem>
+#include "FileReaderUtil.h"
+#include "FileWriterUtil.h"
 ZipUtil::ZipUtil() {}
 ZipUtil::~ZipUtil() {}
 
@@ -86,7 +88,12 @@ void ZipUtil::enCode(const std::string filePath)
         }
         cout << endl;
     }
-
+    std::string outTestPath = "./outTest.huff";
+    std::ofstream outTestStream(outTestPath, std::ios::out | std::ios::binary);
+    FileWriterUtil::writeTree(outTestStream, huffTree.getTree());
+    outTestStream.close();
+    std::ifstream inTestStream(outTestPath, std::ios::in | std::ios::binary);
+    std::vector<HuffmanNode> testTree = FileReaderUtil::readTree(inTestStream);
     //测试
     std::string testLine = "abcdefg";
     for (int i = 0 ; i < testLine.size(); i++) {
@@ -95,12 +102,12 @@ void ZipUtil::enCode(const std::string filePath)
         int nowIndex = huffTree.getrootIndex();
         for (bool nowBool : boolPath) {
             if (nowBool) {
-                nowIndex = huffTree.getTree()[nowIndex].getRightChildIndex();
+                nowIndex = testTree[nowIndex].getRightChildIndex();
             } else {
-                nowIndex = huffTree.getTree()[nowIndex].getLeftChildIndex();
+                nowIndex = testTree[nowIndex].getLeftChildIndex();
             }
         }
-        cout << huffTree.getTree()[nowIndex].getValue();
+        cout << testTree[nowIndex].getValue();
     }
     cout << endl;
 }

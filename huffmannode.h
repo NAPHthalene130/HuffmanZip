@@ -11,6 +11,7 @@ public:
     void setRightChildIndex(int index);
     void setParentIndex(int index);
     void setIndex(int index);
+    void setValue(unsigned char value);
     int getLeftChildIndex();
     int getRightChildIndex();
     int getParentIndex();

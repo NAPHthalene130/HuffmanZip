@@ -7,14 +7,16 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include <string>
 #include <vector>
 #include "huffmannode.h"
 class FileWriterUtil {
-    static void writeTree(std::ofstream &outfile, std::vector<HuffmanNode> tree) {
-        if (!outfile.is_open()) {
+public:
+    static void writeTree(std::ofstream &outfileStream, std::vector<HuffmanNode> tree) {
+        if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeTree]" << "ofStream Error" << std::endl;
         }
+        unsigned int treeSize = tree.size();
+        outfileStream.write((char*)&treeSize, sizeof(int));
         for (int i = 0; i < tree.size(); i++) {
             int index = i;
             int parentIndex = tree[i].getParentIndex();
@@ -23,12 +25,12 @@ class FileWriterUtil {
             int value = tree[i].getValue();
             int isLeaf = tree[i].isLeaf ? 1 : 0;
             //写入格式[自身下标][双亲下标][左下标][右下标][值][是否为叶子]
-            outfile.write((char*)&index, sizeof(int));
-            outfile.write((char*)&parentIndex, sizeof(int));
-            outfile.write((char*)&leftChildIndex, sizeof(int));
-            outfile.write((char*)&rightChildIndex, sizeof(int));
-            outfile.write((char*)&value, sizeof(int));
-            outfile.write((char*)&isLeaf, sizeof(int));
+            outfileStream.write((char*)&index, sizeof(int));
+            outfileStream.write((char*)&parentIndex, sizeof(int));
+            outfileStream.write((char*)&leftChildIndex, sizeof(int));
+            outfileStream.write((char*)&rightChildIndex, sizeof(int));
+            outfileStream.write((char*)&value, sizeof(int));
+            outfileStream.write((char*)&isLeaf, sizeof(int));
         }
     }
 

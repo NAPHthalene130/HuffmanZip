@@ -5,6 +5,10 @@ void HuffmanNode::setIndex(int index)
     this->myIndex = index;
 }
 
+void HuffmanNode::setValue(unsigned char value) {
+    this->value = value;
+}
+
 int HuffmanNode::getFreq()
 {
     return this->freq;
