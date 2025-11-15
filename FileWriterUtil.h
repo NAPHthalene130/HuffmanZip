@@ -21,7 +21,7 @@ class FileWriterUtil {
             int leftChildIndex = tree[i].getLeftChildIndex();
             int rightChildIndex = tree[i].getRightChildIndex();
             int value = tree[i].getValue();
-            int isLeaf = tree[i].isLeaf() ? 1 : 0;
+            int isLeaf = tree[i].isLeaf ? 1 : 0;
             //写入格式[自身下标][双亲下标][左下标][右下标][值][是否为叶子]
             outfile.write((char*)&index, sizeof(int));
             outfile.write((char*)&parentIndex, sizeof(int));
