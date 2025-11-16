@@ -8,6 +8,7 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
+#include <string>
 #include "huffmannode.h"
 class FileReaderUtil {
 public:
@@ -44,6 +45,44 @@ public:
             tree.push_back(newNode);
         }
         return tree;
+    }
+    static std::string readFileName(std::ifstream &infile) {
+        if (!infile.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readFileName-1]" << "ifStream Error: File not open." << std::endl;
+            throw std::runtime_error("File not open.");
+        }
+        uint32_t length_val = 0;
+        infile.read((char*)&length_val, sizeof(length_val));
+        if (infile.fail()) {
+            if (infile.eof()) {
+                std::cerr << "[WARNING][FileReaderUtil-readFileName-2]" << "Reached EOF while trying to read file name length." << std::endl;
+            } else {
+                std::cerr << "[ERROR][FileReaderUtil-readFileName-3]" << "File read error while reading file name length." << std::endl;
+                infile.clear();
+                throw std::runtime_error("File read error while reading file name length.");
+            }
+            return "";
+        }
+        if (length_val == 0) {
+            return "";
+        }
+        std::vector<char> buffer(length_val);
+        auto expected_read = (std::streamsize)length_val;
+        infile.read(buffer.data(), expected_read);
+        if (infile.gcount() != expected_read) {
+            if (infile.eof()) {
+                std::cerr << "[WARNING][FileReaderUtil-readFileName-4]"
+                          << "Reached EOF prematurely while reading string. Read " << infile.gcount()
+                          << " bytes instead of " << expected_read << "." << std::endl;
+            } else {
+                std::cerr << "[ERROR][FileReaderUtil-readFileName-5]"
+                          << "File read error or partial read while reading string." << std::endl;
+                infile.clear();
+                throw std::runtime_error("File read error or partial read while reading string.");
+            }
+        }
+        std::string res(buffer.data(), infile.gcount());
+        return res;
     }
 };
 

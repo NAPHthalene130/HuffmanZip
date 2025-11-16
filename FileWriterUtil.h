@@ -33,8 +33,26 @@ public:
             outfileStream.write((char*)&isLeaf, sizeof(int));
         }
     }
-
-
+    static bool writeFileName(std::ofstream &outfileStream, const std::string &data) {
+        if (!outfileStream.is_open()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFileName-1]" << "ofStream Error: File not open" << std::endl;
+            return false;
+        }
+        uint32_t length_val = (uint32_t)data.length();
+        outfileStream.write((const char*)&length_val, sizeof(length_val));
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFileName-2]" << "File write error (length)." << std::endl;
+            return false;
+        }
+        const char* bytes = data.data();
+        auto length = (std::streamsize)length_val;
+        outfileStream.write(bytes, length);
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFileName-3]" << "File write error (data)." << std::endl;
+            return false;
+        }
+        return true;
+    }
 };
 
 

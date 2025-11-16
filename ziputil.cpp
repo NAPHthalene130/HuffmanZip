@@ -91,6 +91,7 @@ void ZipUtil::enCode(const std::string filePath)
     std::string outTestPath = "./outTest.huff";
     std::ofstream outTestStream(outTestPath, std::ios::out | std::ios::binary);
     FileWriterUtil::writeTree(outTestStream, huffTree.getTree());
+    FileWriterUtil::writeFileName(outTestStream,"测试.png");
     outTestStream.close();
     std::ifstream inTestStream(outTestPath, std::ios::in | std::ios::binary);
     std::vector<HuffmanNode> testTree = FileReaderUtil::readTree(inTestStream);
@@ -110,4 +111,7 @@ void ZipUtil::enCode(const std::string filePath)
         cout << testTree[nowIndex].getValue();
     }
     cout << endl;
+    std::string readFileName = FileReaderUtil::readFileName(inTestStream);
+    cout << readFileName << endl;
+    inTestStream.close();
 }
