@@ -14,6 +14,6 @@ int main(int argc, char *argv[])
     qDebug() << "Hello World!";
     fs::path testPath = "H:/CODE/CPP/HuffmanZip/TEST";
     std::string inputPath = testPath.string();
-    ZipUtil::enCode(inputPath);
+    ZipUtil::enCodeTest(inputPath);
     return a.exec();
 }

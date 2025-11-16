@@ -56,15 +56,35 @@ ZipUtil &ZipUtil::getInstance()
     return instance;
 }
 
+/*
+* 文件写入格式:
+*  [哈夫曼树数据][指令][指令]...
+*  指令: 0-创建并进入目录  1-创建并写入文件  2-返回上级目录  3-结束
+*  指令0: [文件名长度][文件名内容]
+*  指令1: [文件名长度][文件名内容][编码实际长度][编码内容]
+*/
 //解压文件
 void ZipUtil::deCode(const std::string filePath)
 {
 
 }
 
+void ZipUtil::deCodeTest(std::string filePath) {}
+
 //压缩文件
-void ZipUtil::enCode(const std::string filePath)
+void ZipUtil::enCode(const std::string filePath, std::string outputPath)
 {
+    using std::cout;
+    using std::endl;
+    std::vector<int> freq(256,0);
+    calFileFreq(freq,filePath);
+    HuffmanTree huffTree(freq);
+    std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
+    std::ofstream outTestStream(outputPath, std::ios::out | std::ios::binary);
+    FileWriterUtil::writeTree(outTestStream, huffTree.getTree());
+}
+
+void ZipUtil::enCodeTest(std::string filePath) {
     using std::cout;
     using std::endl;
     std::vector<int> freq(256,0);

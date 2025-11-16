@@ -16,7 +16,9 @@ public:
 
     static ZipUtil& getInstance();
     static void deCode(std::string filePath);
-    static void enCode(std::string filePath);
+    static void deCodeTest(std::string filePath);
+    static void enCode(std::string filePath, std::string outputPath);
+    static void enCodeTest(std::string filePath);
 };
 
 #endif // ZIPUTIL_H
