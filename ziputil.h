@@ -15,10 +15,10 @@ public:
     ZipUtil& operator=(const ZipUtil&) = delete;
 
     static ZipUtil& getInstance();
-    static void deCode(std::string filePath);
-    static void deCodeTest(std::string filePath);
-    static void enCode(std::string filePath, std::string outputPath);
-    static void enCodeTest(std::string filePath);
+    static void deCode(const std::string& filePath, const std::string& outputPath);
+    static void deCodeTest(const std::string& filePath, const std::string& outputPath);
+    static void enCode(const std::string& filePath, const std::string& outputPath);
+    static void enCodeTest(const std::string& filePath, const std::string& outputPath);
 };
 
 #endif // ZIPUTIL_H

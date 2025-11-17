@@ -64,15 +64,30 @@ ZipUtil &ZipUtil::getInstance()
 *  指令1: [文件名长度][文件名内容][编码实际长度][编码内容]
 */
 //解压文件
-void ZipUtil::deCode(const std::string filePath)
+void ZipUtil::deCode(const std::string& filePath, const std::string& outputPath)
 {
 
 }
 
-void ZipUtil::deCodeTest(std::string filePath) {}
+void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputPath) {
+    namespace fs = std::filesystem;
+    using std::cout;
+    using std::endl;
+    using std::cerr;
+    std::ifstream infile(filePath,std::ios::in | std::ios::binary);
+    bool check = FileReaderUtil::readCheck(infile);
+    if (!check) {
+        cerr << "[WARN] CHECK FAIL" << endl;
+    }
+    std::vector<int> freq = FileReaderUtil::readFreq(infile);
+    HuffmanTree huffTree1(freq);
+    for (int i = 0; i < freq.size(); i++) {
+        cout<< i << ":"<< freq[i] << endl;
+    }
+}
 
 //压缩文件
-void ZipUtil::enCode(const std::string filePath, std::string outputPath)
+void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath)
 {
     namespace fs = std::filesystem;
     using std::cout;
@@ -88,77 +103,42 @@ void ZipUtil::enCode(const std::string filePath, std::string outputPath)
     }
 
     FileWriterUtil::writeCheck(outStream);
-    FileWriterUtil::writeTree(outStream, huffTree.getTree());
+    FileWriterUtil::writeFreq(outStream, freq);
     if (fs::is_directory(filePath)) { //是目录
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
-
     } else { //是文件
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
+        FileWriterUtil::writeFile(outStream,bitMap,filePath);
     }
     outStream.close();
 }
 
-void ZipUtil::enCodeTest(std::string filePath) {
+void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputPath) {
+    namespace fs = std::filesystem;
     using std::cout;
     using std::endl;
+    using std::cerr;
     std::vector<int> freq(256,0);
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
     std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
-    // for (int i = 0 ; i < huffTree.getTree().size(); i++) {
-    //     HuffmanNode node = huffTree.getTree()[i];
-    //     cout <<"Index:"<<i<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
-    // }
-    // for (int i = 0 ; i < 256; i++) {
-    //     if (bitMap.find((unsigned char)i) == bitMap.end()) {continue;}
-    //     else cout << i << ": ";
-    //     for (bool value: bitMap[(unsigned char)i]) {
-    //         if (value) {
-    //             cout << 1;
-    //         } else {
-    //             cout << 0;
-    //         }
-    //     }
-    //     cout << endl;
-    // }
-    std::string outTestPath = "./outTest.huff";
-    std::ofstream outTestStream(outTestPath, std::ios::out | std::ios::binary);
-
-    //写
-    FileWriterUtil::writeCheck(outTestStream);
-    FileWriterUtil::writeTree(outTestStream, huffTree.getTree());
-    FileWriterUtil::writeFileName(outTestStream,"测试.png");
-    outTestStream.close();
-
-
-    //读
-    std::ifstream inTestStream(outTestPath, std::ios::in | std::ios::binary);
-    bool check = FileReaderUtil::readCheck(inTestStream);
-    if (check) {
-        cout << "CHECK SUCCESS" << endl;
-    } else {
-        cout << "CHECK FAILED" << endl;
-        return;
+    std::ofstream outStream(outputPath, std::ios::out | std::ios::binary);
+    fs::path pathFile(filePath);
+    if (!fs::exists(pathFile)) {
+        //TODO:不存在这个文件
     }
-    std::vector<HuffmanNode> testTree = FileReaderUtil::readTree(inTestStream);
-    //测试
-    std::string testLine = "abcdefg";
-    for (int i = 0 ; i < testLine.size(); i++) {
-        char nowChar = testLine[i];
-        std::vector<bool> boolPath = bitMap[nowChar];
-        int nowIndex = huffTree.getrootIndex();
-        for (bool nowBool : boolPath) {
-            if (nowBool) {
-                nowIndex = testTree[nowIndex].getRightChildIndex();
-            } else {
-                nowIndex = testTree[nowIndex].getLeftChildIndex();
-            }
-        }
-        cout << testTree[nowIndex].getValue();
-    }
-    cout << endl;
-    std::string readFileName = FileReaderUtil::readFileName(inTestStream);
-    cout << readFileName << endl;
 
-    inTestStream.close();
+    FileWriterUtil::writeCheck(outStream);
+    FileWriterUtil::writeFreq(outStream, freq);
+    if (fs::is_directory(filePath)) { //是目录
+        FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
+    } else { //是文件
+        FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
+        FileWriterUtil::writeFile(outStream,bitMap,filePath);
+    }
+    for (int i = 0; i < freq.size(); i++) {
+        cout<< i << ":"<< freq[i] << endl;
+    }
+    outStream.close();
+
 }

@@ -55,6 +55,18 @@ public:
         return tree;
     }
 
+    //读取频率
+    static std::vector<int> readFreq(std::ifstream &infile) {
+        if (!infile.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readFreq-1]" << "ifStream Error" << std::endl;
+        }
+        std::vector<int> freq(256);
+        unsigned int treeSize = 0;
+        for (unsigned int i = 0; i < 256; i++) {
+            infile.read(reinterpret_cast<char*>(&freq[i]), sizeof(freq[i]));
+        }
+        return freq;
+    }
     //读取文件名
     static std::string readFileName(std::ifstream &infile) {
         if (!infile.is_open()) {
