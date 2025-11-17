@@ -11,6 +11,13 @@
 #include "huffmannode.h"
 class FileWriterUtil {
 public:
+    const static int OPE_CREATE_DIR_AND_ENTER = 0;
+    const static int OPE_CREATE_FILE_AND_WRITE = 1;
+    const static int OPE_RETURN = 2;
+    const static int OPE_END = 3;
+    const static int TYPE_DIR = 0;
+    const static int TYPE_FILE = 1;
+    //写入树
     static void writeTree(std::ofstream &outfileStream, std::vector<HuffmanNode> tree) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeTree]" << "ofStream Error" << std::endl;
@@ -33,6 +40,8 @@ public:
             outfileStream.write((char*)&isLeaf, sizeof(int));
         }
     }
+
+    //写入文件名
     static bool writeFileName(std::ofstream &outfileStream, const std::string &data) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeFileName-1]" << "ofStream Error: File not open" << std::endl;
@@ -52,6 +61,44 @@ public:
             return false;
         }
         return true;
+    }
+
+    //写入操作
+    static void writeOpe(std::ofstream &outfileStream, int Ope) {
+        if (!outfileStream.is_open()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeOpe-1]" << "ofStream Error: File not open" << std::endl;
+            return;
+        }
+        outfileStream.write((char*)&Ope, sizeof(int));
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeOpe-2]" << "ofStream Error: Write fail" << std::endl;
+        }
+    }
+
+    //写入校验
+    static void writeCheck(std::ofstream &outfileStream) {
+        if (!outfileStream.is_open()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeCheck-1]" << "ofStream Error: File not open" << std::endl;
+            return;
+        }
+        const char magic[] = "HUFF";
+        const int magic_len = 4;
+        outfileStream.write(magic, magic_len);
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeCheck-2]" << "ofStream Error: Write fail" << std::endl;
+        }
+    }
+
+    //写入类型
+    static void writeType(std::ofstream &outfileStream, int type) {
+        if (!outfileStream.is_open()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeType-1]" << "ofStream Error: File not open" << std::endl;
+            return;
+        }
+        outfileStream.write((char*)&type, sizeof(int));
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeType-2]" << "ofStream Error: Write fail" << std::endl;
+        }
     }
 };
 

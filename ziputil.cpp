@@ -15,7 +15,7 @@ void ZipUtil::calFileFreq(std::vector<int> &freq, std::string filePath)
     namespace fs = std::filesystem;
     int BUFFER_SIZE = 1024;
     std::fstream inputFile(filePath, std::ios::in | std::ios::binary);
-    std::cout << "TEST1:" << filePath << std::endl;
+    // std::cout << "TEST1:" << filePath << std::endl;
     fs::path p(filePath);
     if (!fs::exists(p)) {
         std::cerr << "[ERROR][ZipUtil-calFileFreq-1]: Path is not existing" << filePath << std::endl;
@@ -58,7 +58,7 @@ ZipUtil &ZipUtil::getInstance()
 
 /*
 * 文件写入格式:
-*  [哈夫曼树数据][指令][指令]...
+*  [校验][哈夫曼树数据][指令][指令]...
 *  指令: 0-创建并进入目录  1-创建并写入文件  2-返回上级目录  3-结束
 *  指令0: [文件名长度][文件名内容]
 *  指令1: [文件名长度][文件名内容][编码实际长度][编码内容]
@@ -74,14 +74,28 @@ void ZipUtil::deCodeTest(std::string filePath) {}
 //压缩文件
 void ZipUtil::enCode(const std::string filePath, std::string outputPath)
 {
+    namespace fs = std::filesystem;
     using std::cout;
     using std::endl;
     std::vector<int> freq(256,0);
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
     std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
-    std::ofstream outTestStream(outputPath, std::ios::out | std::ios::binary);
-    FileWriterUtil::writeTree(outTestStream, huffTree.getTree());
+    std::ofstream outStream(outputPath, std::ios::out | std::ios::binary);
+    fs::path pathFile(filePath);
+    if (!fs::exists(pathFile)) {
+        //TODO:不存在这个文件
+    }
+
+    if (fs::is_directory(filePath)) { //是目录
+        FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
+    } else { //是文件
+        FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
+    }
+    FileWriterUtil::writeCheck(outStream);
+    FileWriterUtil::writeTree(outStream, huffTree.getTree());
+
+    outStream.close();
 }
 
 void ZipUtil::enCodeTest(std::string filePath) {
@@ -91,29 +105,41 @@ void ZipUtil::enCodeTest(std::string filePath) {
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
     std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
-    for (int i = 0 ; i < huffTree.getTree().size(); i++) {
-        HuffmanNode node = huffTree.getTree()[i];
-        cout <<"Index:"<<i<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
-    }
-
-    for (int i = 0 ; i < 256; i++) {
-        if (bitMap.find((unsigned char)i) == bitMap.end()) {continue;}
-        else cout << i << ": ";
-        for (bool value: bitMap[(unsigned char)i]) {
-            if (value) {
-                cout << 1;
-            } else {
-                cout << 0;
-            }
-        }
-        cout << endl;
-    }
+    // for (int i = 0 ; i < huffTree.getTree().size(); i++) {
+    //     HuffmanNode node = huffTree.getTree()[i];
+    //     cout <<"Index:"<<i<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
+    // }
+    // for (int i = 0 ; i < 256; i++) {
+    //     if (bitMap.find((unsigned char)i) == bitMap.end()) {continue;}
+    //     else cout << i << ": ";
+    //     for (bool value: bitMap[(unsigned char)i]) {
+    //         if (value) {
+    //             cout << 1;
+    //         } else {
+    //             cout << 0;
+    //         }
+    //     }
+    //     cout << endl;
+    // }
     std::string outTestPath = "./outTest.huff";
     std::ofstream outTestStream(outTestPath, std::ios::out | std::ios::binary);
+
+    //写
+    FileWriterUtil::writeCheck(outTestStream);
     FileWriterUtil::writeTree(outTestStream, huffTree.getTree());
     FileWriterUtil::writeFileName(outTestStream,"测试.png");
     outTestStream.close();
+
+
+    //读
     std::ifstream inTestStream(outTestPath, std::ios::in | std::ios::binary);
+    bool check = FileReaderUtil::readCheck(inTestStream);
+    if (check) {
+        cout << "CHECK SUCCESS" << endl;
+    } else {
+        cout << "CHECK FAILED" << endl;
+        return;
+    }
     std::vector<HuffmanNode> testTree = FileReaderUtil::readTree(inTestStream);
     //测试
     std::string testLine = "abcdefg";
@@ -133,5 +159,6 @@ void ZipUtil::enCodeTest(std::string filePath) {
     cout << endl;
     std::string readFileName = FileReaderUtil::readFileName(inTestStream);
     cout << readFileName << endl;
+
     inTestStream.close();
 }

@@ -4,6 +4,7 @@
 
 #ifndef FILEREADERUTIL_H
 #define FILEREADERUTIL_H
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -12,6 +13,13 @@
 #include "huffmannode.h"
 class FileReaderUtil {
 public:
+    const static int OPE_CREATE_DIR_AND_ENTER = 0;
+    const static int OPE_CREATE_FILE_AND_WRITE = 1;
+    const static int OPE_RETURN = 2;
+    const static int OPE_END = 3;
+    const static int TYPE_DIR = 0;
+    const static int TYPE_FILE = 1;
+    //读取树
     static std::vector<HuffmanNode> readTree(std::ifstream &infile) {
         if (!infile.is_open()) {
             std::cerr << "[ERROR][FileReaderUtil-readTree-1]" << "ifStream Error" << std::endl;
@@ -46,6 +54,8 @@ public:
         }
         return tree;
     }
+
+    //读取文件名
     static std::string readFileName(std::ifstream &infile) {
         if (!infile.is_open()) {
             std::cerr << "[ERROR][FileReaderUtil-readFileName-1]" << "ifStream Error: File not open." << std::endl;
@@ -83,6 +93,56 @@ public:
         }
         std::string res(buffer.data(), infile.gcount());
         return res;
+    }
+
+    //读取操作
+    static int readOpe(std::ifstream &infileStream) {
+        int Ope = -1;
+        if (!infileStream.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readOpe-1]" << "ifStream Error: File not open" << std::endl;
+            return -1;
+        }
+        infileStream.read((char*)&Ope, sizeof(int));
+        if (infileStream.fail()) {
+            std::cerr << "[ERROR][FileReaderUtil-readOpe-2]" << "ifStream Error: Read fail or EOF reached before reading full int" << std::endl;
+        }
+        return Ope;
+    }
+
+    //读取校验
+    static bool readCheck(std::ifstream &infileStream) {
+        if (!infileStream.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readCheck-1]" << "ifStream Error: File not open" << std::endl;
+            return false;
+        }
+        const char expected_magic[] = "HUFF";
+        const int magic_len = 4;
+        char read_magic[magic_len];
+        infileStream.read(read_magic, magic_len);
+
+        if (infileStream.fail()) {
+            std::cerr << "[ERROR][FileReaderUtil-readCheck-2]" << "ifStream Error: Read fail or EOF reached before reading full magic" << std::endl;
+            return false;
+        }
+        if (std::memcmp(read_magic, expected_magic, magic_len) != 0) {
+            std::cerr << "[ERROR][FileReaderUtil-readCheck-3]" << "Magic Check Error: Expected 'HUFF', but read different bytes" << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    //读取类型
+    static int readType(std::ifstream &infileStream) {
+        int type = 0;
+        if (!infileStream.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readType-1]" << "ifStream Error: File not open" << std::endl;
+            return 0;
+        }
+        infileStream.read((char*)&type, sizeof(int));
+        if (infileStream.fail()) {
+            std::cerr << "[ERROR][FileReaderUtil-readType-2]" << "ifStream Error: Read fail" << std::endl;
+        }
+        return type;
     }
 };
 
