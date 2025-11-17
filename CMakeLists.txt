@@ -17,6 +17,8 @@ qt_add_executable(HuffmanZip
         FileWriterUtil.h
         FileReaderUtil.cpp
         FileReaderUtil.h
+        BitStreamWriter.cpp
+        BitStreamWriter.h
 )
 
 target_link_libraries(HuffmanZip

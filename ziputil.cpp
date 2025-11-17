@@ -87,14 +87,14 @@ void ZipUtil::enCode(const std::string filePath, std::string outputPath)
         //TODO:不存在这个文件
     }
 
+    FileWriterUtil::writeCheck(outStream);
+    FileWriterUtil::writeTree(outStream, huffTree.getTree());
     if (fs::is_directory(filePath)) { //是目录
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
+
     } else { //是文件
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
     }
-    FileWriterUtil::writeCheck(outStream);
-    FileWriterUtil::writeTree(outStream, huffTree.getTree());
-
     outStream.close();
 }
 

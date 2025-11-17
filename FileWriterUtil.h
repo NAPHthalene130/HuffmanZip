@@ -8,7 +8,9 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
+#include <map>
 #include "huffmannode.h"
+#include "BitStreamWriter.h"
 class FileWriterUtil {
 public:
     const static int OPE_CREATE_DIR_AND_ENTER = 0;
@@ -99,6 +101,56 @@ public:
         if (outfileStream.fail()) {
             std::cerr << "[ERROR][FileWriterUtil-writeType-2]" << "ofStream Error: Write fail" << std::endl;
         }
+    }
+
+    //写入文件
+static void writeFile(std::ofstream &outfileStream, const std::map<unsigned char,
+        std::vector<bool>>& bitMap, const std::string& inFilePath) {
+        const size_t BITS_FIELD_SIZE = sizeof(unsigned int);
+        unsigned int placeholder = 0;
+        outfileStream.write(reinterpret_cast<const char*>(&placeholder), BITS_FIELD_SIZE);
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFile-Header]" << "File write error (placeholder)." << std::endl;
+            return;
+        }
+        std::ifstream ifs(inFilePath, std::ios::binary);
+        if (!ifs.is_open()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFile-1]" << "ifStream Error: Read file error" << std::endl;
+            return;
+        }
+        BitStreamWriter bitOutfileWriter(outfileStream);
+        constexpr size_t BUFFER_SIZE = 1024;
+        std::vector<unsigned char> buffer(BUFFER_SIZE);
+        while (ifs.good()) {
+            ifs.read(reinterpret_cast<char*>(buffer.data()), BUFFER_SIZE);
+            size_t bytesRead = ifs.gcount();
+            if (bytesRead == 0) {
+                break;
+            }
+            for (size_t i = 0; i < bytesRead; ++i) {
+                unsigned char byte_in = buffer[i];
+                auto it = bitMap.find(byte_in);
+                if (it != bitMap.end()) {
+                    bitOutfileWriter.write_bits(it->second);
+                } else {
+                    std::cerr << "[ERROR][FileWriterUtil-writeFile-2]" <<
+                        "BitOfStream Error: Bytes not in bitMap" << std::endl;
+                    ifs.close();
+                    bitOutfileWriter.flush_and_close();
+                    return;
+                }
+            }
+        }
+        bitOutfileWriter.flush_and_close();
+        ifs.close();
+        unsigned int total_bits = bitOutfileWriter.get_total_bits_written();
+        std::streampos current_pos = outfileStream.tellp();
+        outfileStream.seekp(0, std::ios::beg);
+        outfileStream.write(reinterpret_cast<const char*>(&total_bits), BITS_FIELD_SIZE);
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFile-TotalBits]" << "File write error (total bits)." << std::endl;
+        }
+        outfileStream.seekp(current_pos);
     }
 };
 
