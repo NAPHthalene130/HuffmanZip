@@ -160,12 +160,27 @@ public:
         return type;
     }
 
-    static void readFileAndWrite(std::ifstream &inputStream, std::map<unsigned char,std::vector<bool>> bitMap, std::string outputPath) {
-        std::map<std::vector<bool>, unsigned char> reverseBitMap;
-        for (const auto& pair : bitMap) {
-            reverseBitMap[pair.second] = pair.first;
+    static void readDir(std::ifstream &inputStream, std::map<std::vector<bool>, unsigned char> reverseBitMap, std::string outputDirPath) {
+        namespace fs = std::filesystem;
+        std::string filename = readFileName(inputStream);
+        fs::path outputPath = outputDirPath;
+        outputPath /= filename;
+        fs::create_directory(outputPath);
+        int ope;
+        while ((ope = readOpe(inputStream)) != 2) {
+            if (ope == 0) { //文件夹
+                readDir(inputStream, reverseBitMap, outputPath.string());
+            } else if (ope == 1) { //文件
+                readFileAndWrite(inputStream, reverseBitMap, outputPath.string());
+            }
         }
+    }
+    static void readFileAndWrite(std::ifstream &inputStream, std::map<std::vector<bool>, unsigned char> reverseBitMap, std::string outputDirPath) {
+        namespace fs = std::filesystem;
 
+        std::string filename = readFileName(inputStream);
+        fs::path outputPath = outputDirPath;
+        outputPath /= filename;
         std::ofstream outputStream(outputPath, std::ios::binary | std::ios::trunc);
         if (!outputStream.is_open()) {
             std::cerr << "[ERROR][FileReaderUtil-readFileAndWrite] Failed to open output file: " << outputPath << std::endl;

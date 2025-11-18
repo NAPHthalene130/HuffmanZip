@@ -88,21 +88,20 @@ void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputP
     //     cout <<"R:Index:"<<node.getIndex()<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
     // }
     std::map<unsigned char, std::vector<bool>> bitMap = huffmanTree.getBitMap();
+    std::map<std::vector<bool>, unsigned char> reverseBitMap;
+    for (const auto& pair : bitMap) {
+        reverseBitMap[pair.second] = pair.first;
+    }
     int type = FileReaderUtil::readType(infile);
     if (type == 0) {
         cout << "TYPE: DIR" << endl;
+        int ope = FileReaderUtil::readOpe(infile);
+        FileReaderUtil::readDir(infile,reverseBitMap,outputPath);
     } else {
         cout << "TYPE: FILE" << endl;
-    }
-    int ope = FileReaderUtil::readOpe(infile);
-    cout << "ope: " << ope << endl;
-    std::string name = FileReaderUtil::readFileName(infile);
-    cout << "name: " << name << endl;
-    if (type == 0) {
-
-    } else {
-        FileReaderUtil::readFileAndWrite(infile, bitMap, outputPath);
-        // FileReaderUtil::readBytes(infile);
+        int ope = FileReaderUtil::readOpe(infile);
+        cout << "ope: " << ope << endl;
+        FileReaderUtil::readFileAndWrite(infile,reverseBitMap,outputPath);
     }
 
 }
