@@ -80,10 +80,18 @@ void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputP
         cerr << "[WARN] CHECK FAIL" << endl;
     }
     std::vector<int> freq = FileReaderUtil::readFreq(infile);
-    HuffmanTree huffTree1(freq);
-    for (int i = 0; i < freq.size(); i++) {
-        cout<< i << ":"<< freq[i] << endl;
+    HuffmanTree huffTree(freq);
+    std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
+    int type = FileReaderUtil::readType(infile);
+    if (type == 0) {
+        cout << "TYPE: DIR" << endl;
+    } else {
+        cout << "TYPE: FILE" << endl;
     }
+    int ope = FileReaderUtil::readOpe(infile);
+    cout << "ope: " << ope << endl;
+    std::string name = FileReaderUtil::readFileName(infile);
+    cout << "name: " << name << endl;
 }
 
 //压缩文件
@@ -99,13 +107,15 @@ void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath)
     std::ofstream outStream(outputPath, std::ios::out | std::ios::binary);
     fs::path pathFile(filePath);
     if (!fs::exists(pathFile)) {
-        //TODO:不存在这个文件
+        std::cerr << "[WARN] File not exists" << endl;
+        return;
     }
 
     FileWriterUtil::writeCheck(outStream);
     FileWriterUtil::writeFreq(outStream, freq);
     if (fs::is_directory(filePath)) { //是目录
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
+        FileWriterUtil::writeDir(outStream, bitMap, filePath);
     } else { //是文件
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
         FileWriterUtil::writeFile(outStream,bitMap,filePath);
@@ -125,19 +135,18 @@ void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputP
     std::ofstream outStream(outputPath, std::ios::out | std::ios::binary);
     fs::path pathFile(filePath);
     if (!fs::exists(pathFile)) {
-        //TODO:不存在这个文件
+        std::cerr << "[WARN] File not exists" << endl;
+        return;
     }
 
     FileWriterUtil::writeCheck(outStream);
     FileWriterUtil::writeFreq(outStream, freq);
     if (fs::is_directory(filePath)) { //是目录
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
+        FileWriterUtil::writeDir(outStream, bitMap, filePath);
     } else { //是文件
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
         FileWriterUtil::writeFile(outStream,bitMap,filePath);
-    }
-    for (int i = 0; i < freq.size(); i++) {
-        cout<< i << ":"<< freq[i] << endl;
     }
     outStream.close();
 

@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     qDebug() << "Hello World!";
-    fs::path testPath = "E:\\Steam\\steamapps\\common\\Hearts of Iron IV\\hoi4.exe";
-    const std::string testOutPath = "E:\\Steam\\steamapps\\common\\Hearts of Iron IV\\hoi4.exe.huff";
+    fs::path testPath = "H:\\CODE\\CPP\\HuffmanZip\\TEST";
+    const std::string testOutPath = "H:\\CODE\\CPP\\HuffmanZip\\TESTOUT\\TEST.huff";
     std::string inputPath = testPath.string();
     ZipUtil::enCodeTest(inputPath, testOutPath);
     ZipUtil::deCodeTest(testOutPath,inputPath);

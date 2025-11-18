@@ -11,6 +11,7 @@
 #include <map>
 #include "huffmannode.h"
 #include "BitStreamWriter.h"
+
 class FileWriterUtil {
 public:
     const static int OPE_CREATE_DIR_AND_ENTER = 0;
@@ -20,7 +21,7 @@ public:
     const static int TYPE_DIR = 0;
     const static int TYPE_FILE = 1;
     //写入树
-    static void writeTree(std::ofstream &outfileStream, std::vector<HuffmanNode> tree) {
+    static void writeTree(std::ofstream& outfileStream, std::vector<HuffmanNode> tree) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeTree]" << "ofStream Error" << std::endl;
         }
@@ -42,22 +43,25 @@ public:
             outfileStream.write((char*)&isLeaf, sizeof(int));
         }
     }
+
     //写入频率
-    static void writeFreq(std::ofstream &outfileStream, std::vector<int> freq) {
+    static void writeFreq(std::ofstream& outfileStream, std::vector<int> freq) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeFreq-1]" << "ofStream Error: File not open" << std::endl;
         }
-        for (int i = 0 ; i < 256; i++) {
+        for (int i = 0; i < 256; i++) {
             outfileStream.write((char*)&freq[i], sizeof(int));
         }
         return;
     }
+
     //写入文件名
-    static bool writeFileName(std::ofstream &outfileStream, const std::string &data) {
+    static bool writeFileName(std::ofstream& outfileStream, const std::string& data) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeFileName-1]" << "ofStream Error: File not open" << std::endl;
             return false;
         }
+        //写文件名长度
         uint32_t length_val = (uint32_t)data.length();
         outfileStream.write((const char*)&length_val, sizeof(length_val));
         if (outfileStream.fail()) {
@@ -75,7 +79,7 @@ public:
     }
 
     //写入操作
-    static void writeOpe(std::ofstream &outfileStream, int Ope) {
+    static void writeOpe(std::ofstream& outfileStream, int Ope) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeOpe-1]" << "ofStream Error: File not open" << std::endl;
             return;
@@ -87,7 +91,7 @@ public:
     }
 
     //写入校验
-    static void writeCheck(std::ofstream &outfileStream) {
+    static void writeCheck(std::ofstream& outfileStream) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeCheck-1]" << "ofStream Error: File not open" << std::endl;
             return;
@@ -101,7 +105,7 @@ public:
     }
 
     //写入类型
-    static void writeType(std::ofstream &outfileStream, int type) {
+    static void writeType(std::ofstream& outfileStream, int type) {
         if (!outfileStream.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeType-1]" << "ofStream Error: File not open" << std::endl;
             return;
@@ -112,59 +116,83 @@ public:
         }
     }
 
-    static void writeFile(std::ofstream &outfileStream, const std::map<unsigned char,
-        std::vector<bool>>& bitMap, const std::string& inFilePath) {
+    static void writeFile(std::ofstream& outfileStream, const std::map<unsigned char,
+        std::vector<bool>>& bitMap,const std::string& inFilePath) {
 
+        namespace fs = std::filesystem;
 
-    std::streampos start_pos = outfileStream.tellp();
-    const size_t BITS_FIELD_SIZE = sizeof(unsigned int);
-    unsigned int placeholder = 0;
-    outfileStream.write(reinterpret_cast<const char*>(&placeholder), BITS_FIELD_SIZE);
-    if (outfileStream.fail()) {
-        std::cerr << "[ERROR][FileWriterUtil-writeFile-Header]" << "File write error (placeholder)." << std::endl;
-        return;
-    }
-    std::ifstream ifs(inFilePath, std::ios::binary);
-    if (!ifs.is_open()) {
-        std::cerr << "[ERROR][FileWriterUtil-writeFile-1]" << "ifStream Error: Read file error" << std::endl;
-        return;
-    }
-    BitStreamWriter bitOutfileWriter(outfileStream);
-    constexpr size_t BUFFER_SIZE = 1024;
-    std::vector<unsigned char> buffer(BUFFER_SIZE);
-    while (ifs.good()) {
-        ifs.read(reinterpret_cast<char*>(buffer.data()), BUFFER_SIZE);
-        size_t bytesRead = ifs.gcount();
-        if (bytesRead == 0) {
-            break;
+        writeOpe(outfileStream,OPE_CREATE_FILE_AND_WRITE);
+        fs::path path(inFilePath);
+        writeFileName(outfileStream, path.filename().string());
+        std::streampos start_pos = outfileStream.tellp();
+        const size_t BITS_FIELD_SIZE = sizeof(unsigned int);
+        unsigned int placeholder = 0;
+        outfileStream.write(reinterpret_cast<const char*>(&placeholder), BITS_FIELD_SIZE);
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFile-Header]" << "File write error (placeholder)." << std::endl;
+            return;
         }
-        for (size_t i = 0; i < bytesRead; ++i) {
-            unsigned char byte_in = buffer[i];
-            auto it = bitMap.find(byte_in);
-            if (it != bitMap.end()) {
-                bitOutfileWriter.write_bits(it->second);
-            } else {
-                std::cerr << "[ERROR][FileWriterUtil-writeFile-2]" <<
-                    "BitOfStream Error: Bytes not in bitMap" << std::endl;
-                ifs.close();
-                bitOutfileWriter.flush_and_close();
-                return;
+        std::ifstream ifs(inFilePath, std::ios::binary);
+        if (!ifs.is_open()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFile-1]" << "ifStream Error: Read file error" << std::endl;
+            return;
+        }
+        BitStreamWriter bitOutfileWriter(outfileStream);
+        constexpr size_t BUFFER_SIZE = 1024;
+        std::vector<unsigned char> buffer(BUFFER_SIZE);
+        while (ifs.good()) {
+            ifs.read(reinterpret_cast<char*>(buffer.data()), BUFFER_SIZE);
+            size_t bytesRead = ifs.gcount();
+            if (bytesRead == 0) {
+                break;
+            }
+            for (size_t i = 0; i < bytesRead; ++i) {
+                unsigned char byte_in = buffer[i];
+                auto it = bitMap.find(byte_in);
+                if (it != bitMap.end()) {
+                    bitOutfileWriter.write_bits(it->second);
+                }
+                else {
+                    std::cerr << "[ERROR][FileWriterUtil-writeFile-2]" <<
+                        "BitOfStream Error: Bytes not in bitMap" << std::endl;
+                    ifs.close();
+                    bitOutfileWriter.flush_and_close();
+                    return;
+                }
             }
         }
+        bitOutfileWriter.flush_and_close();
+        ifs.close();
+        unsigned int total_bits = bitOutfileWriter.get_total_bits_written();
+        std::streampos current_pos = outfileStream.tellp();
+        outfileStream.seekp(start_pos, std::ios::beg);
+        outfileStream.write(reinterpret_cast<const char*>(&total_bits), BITS_FIELD_SIZE);
+        if (outfileStream.fail()) {
+            std::cerr << "[ERROR][FileWriterUtil-writeFile-TotalBits]" << "File write error (total bits)." << std::endl;
+        }
+        outfileStream.seekp(current_pos);
     }
-    bitOutfileWriter.flush_and_close();
-    ifs.close();
-    unsigned int total_bits = bitOutfileWriter.get_total_bits_written();
-    std::streampos current_pos = outfileStream.tellp();
-    outfileStream.seekp(start_pos, std::ios::beg);
-    outfileStream.write(reinterpret_cast<const char*>(&total_bits), BITS_FIELD_SIZE);
-    if (outfileStream.fail()) {
-        std::cerr << "[ERROR][FileWriterUtil-writeFile-TotalBits]" << "File write error (total bits)." << std::endl;
-    }
-    outfileStream.seekp(current_pos);
-}
-};
+    static void writeDir(std::ofstream& outfileStream, const std::map<unsigned char,
+        std::vector<bool>>& bitMap, const std::string& inFilePath) {
+        namespace fs = std::filesystem;
 
+        writeOpe(outfileStream,OPE_CREATE_DIR_AND_ENTER);
+        fs::path path(inFilePath);
+        writeFileName(outfileStream, path.filename().string());
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (entry.is_regular_file()) {
+                continue;
+            }
+            writeDir(outfileStream, bitMap, entry.path().string());
+        }
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (entry.is_regular_file()) {
+                writeFile(outfileStream, bitMap,entry.path().string());
+            }
+        }
+        writeOpe(outfileStream,OPE_RETURN);
+    }
+};
 
 
 #endif //FILEWIRTERUTIL_H
