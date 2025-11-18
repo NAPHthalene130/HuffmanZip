@@ -15,6 +15,8 @@ void BitStreamWriter::write_bits(const std::vector<bool>& bits) {
                 byte |= (1 << (7 - i));
             }
         }
+        // std::cout << "W" << index << ":" << (int)byte << std::endl;
+        // index++;
         ofs.write(reinterpret_cast<const char*>(&byte), sizeof(byte));
         bit_buffer.erase(bit_buffer.begin(), bit_buffer.begin() + 8);
     }

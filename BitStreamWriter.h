@@ -19,6 +19,7 @@ private:
     std::vector<bool> bit_buffer;
     unsigned char padding_bits = 0; // 记录最后一个字节的填充位数
     unsigned int total_bits_written = 0;
+    int index = 0;
 public:
     BitStreamWriter(std::ofstream& output_stream);
     void write_bits(const std::vector<bool>& bits);

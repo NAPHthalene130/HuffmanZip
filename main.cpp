@@ -12,10 +12,11 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     qDebug() << "Hello World!";
-    fs::path testPath = "H:\\CODE\\CPP\\HuffmanZip\\TEST";
-    const std::string testOutPath = "H:\\CODE\\CPP\\HuffmanZip\\TESTOUT\\TEST.huff";
+    fs::path testPath = "H:\\CODE\\CPP\\HuffmanZip\\TEST.txt";
+    const std::string testOutPath = "H:\\CODE\\CPP\\HuffmanZip\\TESTOUT\\enTEST.huff";
+    const std::string testDePath = "H:\\CODE\\CPP\\HuffmanZip\\TESTOUT\\deTEST.txt";
     std::string inputPath = testPath.string();
     ZipUtil::enCodeTest(inputPath, testOutPath);
-    ZipUtil::deCodeTest(testOutPath,inputPath);
+    ZipUtil::deCodeTest(testOutPath,testDePath);
     return a.exec();
 }

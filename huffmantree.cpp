@@ -9,6 +9,55 @@ HuffmanTree::HuffmanTree(std::vector<int> freqList)
 {
     createTree(freqList);
 }
+HuffmanTree::HuffmanTree(const std::vector<HuffmanNode>& treeVector)
+    : huffmanTree(treeVector) // Initialize the tree vector
+{
+    this->size = huffmanTree.size();
+
+    // 1. Find the root index
+    this->rootIndex = -1;
+    for (auto& node : this->huffmanTree) {
+        if (node.getParentIndex() == -1) {
+            this->rootIndex = node.getIndex();
+            break;
+        }
+    }
+
+    // Handle empty tree
+    if (this->huffmanTree.empty()) {
+        return;
+    }
+
+    // 2. Rebuild the charToBit map
+    // This logic is copied from your createTree function,
+    // but iterates over *all* nodes to find the leaves,
+    // which is more robust.
+    for (int i = 0 ; i < huffmanTree.size(); i++) {
+        if (!huffmanTree[i].isLeaf) {
+            continue;
+        }
+
+        // This is a leaf node, build its code
+        int nowIndex = i;
+        while (nowIndex != -1) {
+            int pIndex = huffmanTree[nowIndex].getParentIndex();
+            if (pIndex == -1) break;
+
+            if (nowIndex == huffmanTree[pIndex].getLeftChildIndex()) {
+                //current node is parent's left child
+                charToBit[huffmanTree[i].getValue()].push_back(0);
+            } else if (nowIndex == huffmanTree[pIndex].getRightChildIndex()) {
+                //current node is parent's right child
+                charToBit[huffmanTree[i].getValue()].push_back(1);
+            } else {
+                std::cerr << "[ERROR][HuffmanTree-Constructor(Vector)]-1]: Unknow Index" << std::endl;
+            }
+            nowIndex = pIndex;
+        }
+        // Reverse the code since it was built from leaf to root
+        std::reverse(charToBit[huffmanTree[i].getValue()].begin(),charToBit[huffmanTree[i].getValue()].end());
+    }
+}
 
 void HuffmanTree::appendNode(HuffmanNode node)
 {

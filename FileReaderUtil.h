@@ -8,8 +8,11 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <map>
 #include <vector>
 #include <string>
+
+#include "BitStreamReader.h"
 #include "huffmannode.h"
 class FileReaderUtil {
 public:
@@ -155,6 +158,62 @@ public:
             std::cerr << "[ERROR][FileReaderUtil-readType-2]" << "ifStream Error: Read fail" << std::endl;
         }
         return type;
+    }
+
+    static void readFileAndWrite(std::ifstream &inputStream, std::map<unsigned char,std::vector<bool>> bitMap, std::string outputPath) {
+        std::map<std::vector<bool>, unsigned char> reverseBitMap;
+        for (const auto& pair : bitMap) {
+            reverseBitMap[pair.second] = pair.first;
+        }
+
+        std::ofstream outputStream(outputPath, std::ios::binary | std::ios::trunc);
+        if (!outputStream.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readFileAndWrite] Failed to open output file: " << outputPath << std::endl;
+            return;
+        }
+
+        int totalBits = 0;
+        inputStream.read((char*)&totalBits, sizeof(int));
+        if (inputStream.fail() || totalBits == 0) {
+            std::cerr << "[ERROR][FileReaderUtil-readFileAndWrite-1]" << "Totol bits read fail" << std::endl;
+        }
+        std::cout << "READER:TOTAL BITS: " << totalBits << std::endl;
+        BitStreamReader bitReader(inputStream, totalBits);
+        std::vector<bool> currentCode;
+        while (bitReader.getBitsReadCount() < totalBits) {
+            bool bit = bitReader.readBit();
+            if (bitReader.getBitsReadCount() > totalBits) {
+                break;
+            }
+            currentCode.push_back(bit);
+            auto it = reverseBitMap.find(currentCode);
+            if (it != reverseBitMap.end()) {
+                unsigned char decodedChar = it->second;
+                outputStream.write(reinterpret_cast<const char*>(&decodedChar), sizeof(decodedChar));
+                currentCode.clear();
+            }
+        }
+        outputStream.close();
+        if (bitReader.getBitsReadCount() != totalBits) {
+            std::cerr << "[WARNING][FileReaderUtil-decodeFile] Total bits read (" << bitReader.getBitsReadCount()
+                      << ") does not match expected total bits (" << totalBits << "). This may indicate an issue with the totalBits header value." << std::endl;
+        }
+    }
+
+    static void readBytes(std::ifstream &inputStream) {
+        using std::cout;
+        using std::endl;
+        using std::cerr;
+        if (!inputStream.is_open()) {
+            std::cerr << "[ERROR][FileReaderUtil-readBytes] Failed to open output file: " << std::endl;
+        }
+        unsigned int totalBits = 0;
+        inputStream.read((char*)&totalBits, sizeof(unsigned int));
+        for (int i = 0 ; i < (totalBits+7)/8 ; i++) {
+            unsigned char read = 0;
+            inputStream.read((char*)&read, sizeof(char));
+            cout << "R" << i << ":" << (int)read << endl;
+        }
     }
 };
 

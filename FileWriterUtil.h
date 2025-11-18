@@ -171,7 +171,9 @@ public:
             std::cerr << "[ERROR][FileWriterUtil-writeFile-TotalBits]" << "File write error (total bits)." << std::endl;
         }
         outfileStream.seekp(current_pos);
+        std::cout << " WRITER:TOTAL BITS: " << total_bits << std::endl;
     }
+
     static void writeDir(std::ofstream& outfileStream, const std::map<unsigned char,
         std::vector<bool>>& bitMap, const std::string& inFilePath) {
         namespace fs = std::filesystem;

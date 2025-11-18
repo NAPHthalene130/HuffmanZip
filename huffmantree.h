@@ -8,6 +8,7 @@ class HuffmanTree
 public:
     HuffmanTree();
     HuffmanTree(std::vector<int> freqList);
+    HuffmanTree(const std::vector<HuffmanNode>& treeVector);
     void appendNode(HuffmanNode node);
     void createTree(std::vector<int> freqList);
     std::vector<HuffmanNode> getTree();

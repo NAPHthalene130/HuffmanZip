@@ -78,10 +78,16 @@ void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputP
     bool check = FileReaderUtil::readCheck(infile);
     if (!check) {
         cerr << "[WARN] CHECK FAIL" << endl;
+    } else {
+        cout << "CHECK OK" << endl;
     }
-    std::vector<int> freq = FileReaderUtil::readFreq(infile);
-    HuffmanTree huffTree(freq);
-    std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
+    std::vector<HuffmanNode> tree = FileReaderUtil::readTree(infile);
+    HuffmanTree huffmanTree(tree);
+    // for (int i = 0 ; i < huffmanTree.getTree().size(); i++) {
+    //     HuffmanNode node = huffmanTree.getTree()[i];
+    //     cout <<"R:Index:"<<node.getIndex()<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
+    // }
+    std::map<unsigned char, std::vector<bool>> bitMap = huffmanTree.getBitMap();
     int type = FileReaderUtil::readType(infile);
     if (type == 0) {
         cout << "TYPE: DIR" << endl;
@@ -92,6 +98,13 @@ void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputP
     cout << "ope: " << ope << endl;
     std::string name = FileReaderUtil::readFileName(infile);
     cout << "name: " << name << endl;
+    if (type == 0) {
+
+    } else {
+        FileReaderUtil::readFileAndWrite(infile, bitMap, outputPath);
+        // FileReaderUtil::readBytes(infile);
+    }
+
 }
 
 //压缩文件
@@ -112,7 +125,7 @@ void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath)
     }
 
     FileWriterUtil::writeCheck(outStream);
-    FileWriterUtil::writeFreq(outStream, freq);
+    FileWriterUtil::writeTree(outStream, huffTree.getTree());
     if (fs::is_directory(filePath)) { //是目录
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
         FileWriterUtil::writeDir(outStream, bitMap, filePath);
@@ -132,6 +145,10 @@ void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputP
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
     std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
+    // for (int i = 0 ; i < huffTree.getTree().size(); i++) {
+    //     HuffmanNode node = huffTree.getTree()[i];
+    //     cout <<"W:Index:"<<node.getIndex()<<" Freq:"<<node.getFreq()<<" Parent:"<<node.getParentIndex()<<" LChild" << node.getLeftChildIndex() << " RChild:"<<node.getRightChildIndex()<<endl;
+    // }
     std::ofstream outStream(outputPath, std::ios::out | std::ios::binary);
     fs::path pathFile(filePath);
     if (!fs::exists(pathFile)) {
@@ -140,7 +157,7 @@ void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputP
     }
 
     FileWriterUtil::writeCheck(outStream);
-    FileWriterUtil::writeFreq(outStream, freq);
+    FileWriterUtil::writeTree(outStream, huffTree.getTree());
     if (fs::is_directory(filePath)) { //是目录
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_DIR);
         FileWriterUtil::writeDir(outStream, bitMap, filePath);
