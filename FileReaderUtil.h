@@ -193,7 +193,7 @@ public:
 
         int totalBits = 0;
         inputStream.read((char*)&totalBits, sizeof(int));
-        if (inputStream.fail() || totalBits == 0) {
+        if (inputStream.fail()) {
             std::cerr << "[ERROR][FileReaderUtil-readFileAndWrite-1]" << "Totol bits read fail" << std::endl;
         }
         BitStreamReader bitReader(inputStream, totalBits);
