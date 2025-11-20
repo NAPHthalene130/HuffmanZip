@@ -11,6 +11,7 @@
 #include <map>
 #include "huffmannode.h"
 #include "BitStreamWriter.h"
+#include "mainwindow.h"
 
 class FileWriterUtil {
 public:
@@ -117,7 +118,7 @@ public:
     }
 
     static void writeFile(std::ofstream& outfileStream, const std::map<unsigned char,
-        std::vector<bool>>& bitMap,const std::string& inFilePath) {
+        std::vector<bool>>& bitMap,const std::string& inFilePath,  MainWindow* window) {
 
         namespace fs = std::filesystem;
 
@@ -171,10 +172,13 @@ public:
             std::cerr << "[ERROR][FileWriterUtil-writeFile-TotalBits]" << "File write error (total bits)." << std::endl;
         }
         outfileStream.seekp(current_pos);
+        window->addBarProgress();
+        std::string line = "文件" + inFilePath + "压缩成功";
+        window->logWrite(line);
     }
 
     static void writeDir(std::ofstream& outfileStream, const std::map<unsigned char,
-        std::vector<bool>>& bitMap, const std::string& inFilePath) {
+        std::vector<bool>>& bitMap, const std::string& inFilePath,  MainWindow* window) {
         namespace fs = std::filesystem;
 
         writeOpe(outfileStream,OPE_CREATE_DIR_AND_ENTER);
@@ -184,14 +188,16 @@ public:
             if (entry.is_regular_file()) {
                 continue;
             }
-            writeDir(outfileStream, bitMap, entry.path().string());
+            writeDir(outfileStream, bitMap, entry.path().string(), window);
         }
         for (const auto& entry : fs::directory_iterator(path)) {
             if (entry.is_regular_file()) {
-                writeFile(outfileStream, bitMap,entry.path().string());
+                writeFile(outfileStream, bitMap,entry.path().string(),window);
             }
         }
         writeOpe(outfileStream,OPE_RETURN);
+        std::string line = "目录" + inFilePath + "压缩成功";
+        window->logWrite(line);
     }
 };
 

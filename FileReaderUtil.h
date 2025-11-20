@@ -14,6 +14,8 @@
 
 #include "BitStreamReader.h"
 #include "huffmannode.h"
+#include "mainwindow.h"
+
 class FileReaderUtil {
 public:
     const static int OPE_CREATE_DIR_AND_ENTER = 0;
@@ -160,7 +162,7 @@ public:
         return type;
     }
 
-    static void readDir(std::ifstream &inputStream, std::map<std::vector<bool>, unsigned char> reverseBitMap, std::string outputDirPath) {
+    static void readDir(std::ifstream &inputStream, std::map<std::vector<bool>, unsigned char> reverseBitMap, std::string outputDirPath, MainWindow* window) {
         namespace fs = std::filesystem;
         std::string filename = readFileName(inputStream);
         fs::path outputPath = outputDirPath;
@@ -169,13 +171,15 @@ public:
         int ope;
         while ((ope = readOpe(inputStream)) != 2) {
             if (ope == 0) { //文件夹
-                readDir(inputStream, reverseBitMap, outputPath.string());
+                readDir(inputStream, reverseBitMap, outputPath.string(), window);
             } else if (ope == 1) { //文件
-                readFileAndWrite(inputStream, reverseBitMap, outputPath.string());
+                readFileAndWrite(inputStream, reverseBitMap, outputPath.string(), window);
             }
         }
+        std::string line = "目录" + filename + "解压成功";
+        window->logWrite(line);
     }
-    static void readFileAndWrite(std::ifstream &inputStream, std::map<std::vector<bool>, unsigned char> reverseBitMap, std::string outputDirPath) {
+    static void readFileAndWrite(std::ifstream &inputStream, std::map<std::vector<bool>, unsigned char> reverseBitMap, std::string outputDirPath, MainWindow* window) {
         namespace fs = std::filesystem;
 
         std::string filename = readFileName(inputStream);
@@ -212,6 +216,8 @@ public:
             std::cerr << "[WARNING][FileReaderUtil-decodeFile] Total bits read (" << bitReader.getBitsReadCount()
                       << ") does not match expected total bits (" << totalBits << "). This may indicate an issue with the totalBits header value." << std::endl;
         }
+        std::string line = "文件" + filename + "解压成功";
+        window->logWrite(line);
     }
 
     static void readBytes(std::ifstream &inputStream) {
