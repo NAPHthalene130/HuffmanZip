@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <string>
+#include <filesystem>
 
 // 前置声明 Qt 类，加快编译
 class QLineEdit;
@@ -71,5 +72,6 @@ private:
 
     // 实际执行逻辑的入口
     void startWorkerThread(int type, std::string inputPath, std::string outputPath);
+    static double get_directory_size(const std::filesystem::path& path);
 };
 #endif // MAINWINDOW_H

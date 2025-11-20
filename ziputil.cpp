@@ -74,7 +74,6 @@ void ZipUtil::deCode(const std::string& filePath, const std::string& outputPath,
     window->logWrite("开始解压...");
     fs::path p(filePath);
     if (std::filesystem::is_directory(p)) {
-        int cnt = filesCountInDir(p);
         window->setBarTotal(1);
     } else {
         window->setBarTotal(1);

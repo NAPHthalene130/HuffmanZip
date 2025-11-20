@@ -2,6 +2,7 @@
 #include "ziputil.h" // 确保这里包含你的 ZipUtil 头文件
 
 // 引入必要的 Qt 头文件
+#include <iostream>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
@@ -17,7 +18,7 @@
 #include <QMimeData>
 #include <QFrame>
 #include <QDateTime>
-#include <QScrollBar> // 修复了你之前的报错
+#include <QScrollBar>
 #include <QStyle>
 #include <thread>
 #include <QMetaObject>
@@ -25,17 +26,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    // 1. 初始化 UI 布局
     setupUi();
-
-    // 2. 应用现代风格样式
     setupStyle();
-
-    // 3. 启用拖拽
     setAcceptDrops(true);
-
-    // 4. 窗口属性
-    resize(700, 600); // 稍微大一点，显得大气
+    resize(700, 600);
     setWindowTitle("Huffman Zip Tool");
 }
 
@@ -45,13 +39,9 @@ void MainWindow::setupUi()
 {
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
-
-    // 主布局：垂直
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
-    mainLayout->setSpacing(20); // 增加间距，不显得拥挤
-    mainLayout->setContentsMargins(30, 30, 30, 30); // 页面四周留白
-
-    // --- 1. 标题与模式选择 (顶部卡片) ---
+    mainLayout->setSpacing(20);
+    mainLayout->setContentsMargins(30, 30, 30, 30);
     QFrame *topCard = new QFrame(this);
     topCard->setObjectName("Card"); // 用于 CSS 选择器
     QHBoxLayout *topLayout = new QHBoxLayout(topCard);
@@ -68,7 +58,6 @@ void MainWindow::setupUi()
     modeGroup = new QButtonGroup(this);
     modeGroup->addButton(rbCompress, 0);
     modeGroup->addButton(rbDecompress, 1);
-    // 连接信号，切换模式时清空路径，避免混淆
     connect(modeGroup, &QButtonGroup::idClicked, this, &MainWindow::onModeChanged);
 
     topLayout->addWidget(titleLabel);
@@ -77,13 +66,9 @@ void MainWindow::setupUi()
     topLayout->addSpacing(20);
     topLayout->addWidget(rbDecompress);
     mainLayout->addWidget(topCard);
-
-    // --- 2. 拖拽与文件选择区 (中部卡片) ---
     QFrame *fileCard = new QFrame(this);
     fileCard->setObjectName("Card");
     QVBoxLayout *fileLayout = new QVBoxLayout(fileCard);
-
-    // 拖拽区视觉容器
     dragDropFrame = new QFrame(this);
     dragDropFrame->setObjectName("DragArea"); // CSS 重点美化对象
     QVBoxLayout *dragLayout = new QVBoxLayout(dragDropFrame);
@@ -122,8 +107,6 @@ void MainWindow::setupUi()
     fileLayout->addLayout(outputHBox);
     mainLayout->addWidget(fileCard);
 
-    // --- 3. 进度与执行 (底部控制区) ---
-
     // 进度条
     progressBar = new QProgressBar(this);
     progressBar->setValue(0);
@@ -131,7 +114,6 @@ void MainWindow::setupUi()
     progressBar->setFixedHeight(20);
     mainLayout->addWidget(progressBar);
 
-    // 执行按钮 (大号)
     executeBtn = new QPushButton("开始执行", this);
     executeBtn->setObjectName("ExecuteBtn"); // CSS 重点美化
     executeBtn->setCursor(Qt::PointingHandCursor);
@@ -139,7 +121,7 @@ void MainWindow::setupUi()
     connect(executeBtn, &QPushButton::clicked, this, &MainWindow::onExecute);
     mainLayout->addWidget(executeBtn);
 
-    // --- 4. 日志区 (最下方) ---
+    //日志区
     QLabel *logTitle = new QLabel("运行日志", this);
     logTitle->setStyleSheet("font-weight: bold; color: #555; margin-top: 10px;");
     mainLayout->addWidget(logTitle);
@@ -153,7 +135,6 @@ void MainWindow::setupUi()
 
 void MainWindow::setupStyle()
 {
-    // 这里使用 QSS (类似 CSS) 进行美化
     QString qss = R"(
         /* 全局背景 */
         QMainWindow {
@@ -252,20 +233,17 @@ void MainWindow::setupStyle()
     this->setStyleSheet(qss);
 }
 
-// --- 逻辑处理 ---
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasUrls()) {
         event->acceptProposedAction();
-        // 拖拽进来时改变一下背景色提示用户
         dragDropFrame->setStyleSheet("QFrame#DragArea { background-color: #E3F2FD; border: 2px dashed #2196F3; }");
     }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-    // 恢复样式
     dragDropFrame->setStyleSheet("");
 
     QList<QUrl> urls = event->mimeData()->urls();
@@ -274,7 +252,6 @@ void MainWindow::dropEvent(QDropEvent *event)
     QString fileName = urls.first().toLocalFile();
     inputPathEdit->setText(fileName);
 
-    // 智能生成输出路径
     onModeChanged(modeGroup->checkedId());
 
     logWrite("已加载文件: " + fileName.toStdString());
@@ -282,7 +259,6 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::onModeChanged(int id)
 {
-    // 切换模式时，根据输入路径自动调整输出路径后缀
     QString inPath = inputPathEdit->text();
     if (inPath.isEmpty()) return;
 
@@ -290,7 +266,6 @@ void MainWindow::onModeChanged(int id)
         outputPathEdit->setText(inPath + ".huff");
         executeBtn->setText("开始压缩");
     } else { // 解压模式
-        // 尝试去掉 .huff 后缀，或者加上 _decoded
         if (inPath.endsWith(".huff")) {
             outputPathEdit->setText(inPath.left(inPath.length() - 5)); // 去掉后缀
         } else {
@@ -304,16 +279,14 @@ void MainWindow::onSelectInput()
 {
     QString path;
     if (rbCompress->isChecked()) {
-        // 压缩可以选文件
         path = QFileDialog::getOpenFileName(this, "选择要压缩的文件");
     } else {
-        // 解压选 .huff 文件
         path = QFileDialog::getOpenFileName(this, "选择要解压的文件", "", "Huffman Files (*.huff);;All Files (*)");
     }
 
     if (!path.isEmpty()) {
         inputPathEdit->setText(path);
-        onModeChanged(modeGroup->checkedId()); // 触发自动输出路径生成
+        onModeChanged(modeGroup->checkedId());
         logWrite("选择源文件: " + path.toStdString());
     }
 }
@@ -344,7 +317,6 @@ void MainWindow::onExecute()
         return;
     }
 
-    // UI 状态更新
     executeBtn->setEnabled(false);
     executeBtn->setText("正在处理...");
     setBarState(3); // 变蓝
@@ -356,16 +328,54 @@ void MainWindow::onExecute()
 
 void MainWindow::startWorkerThread(int type, std::string inputPath, std::string outputPath)
 {
+    namespace fs = std::filesystem;
     logWrite("任务开始...");
 
     std::thread worker([=]() {
+        fs::path outP(outputPath);
+        fs::path inP(inputPath);
         try {
             if (type == 0) {
                 // 压缩
+                double inSize = 0;
+                if (fs::exists(inP)) {
+                    if (is_directory(inP)) {
+                        inSize = get_directory_size(inP);
+                    } else {
+                        inSize = file_size(inP);
+                    }
+                } else {
+                    setBarState(1);
+                    progressBar->setValue(progressBar->value() + 101);
+                    logWrite("选择文件无效");
+                    return;
+                }
                 ZipUtil::enCode(inputPath, outputPath, this);
+                double outSize = 0;
+                if (fs::exists(outP)) {
+                    if (is_directory(outP)) {
+                        outSize = get_directory_size(outP);
+                    } else {
+                        outSize = file_size(outP);
+                    }
+                }
+                std::string inLine = "压缩前体积" + std::to_string(inSize) + "B";
+                std::string outLine = "压缩后体积" + std::to_string(outSize) + "B";
+                logWrite(inLine);
+                logWrite(outLine);
+                double percent = outSize / inSize * 100;
+                std::string percentLine = "压缩后体积百分比：" + std::to_string(percent) + "%";
+                logWrite(percentLine);
             } else {
                 // 解压
-                ZipUtil::deCode(inputPath,outputPath, this);
+                if (std::filesystem::is_directory(outP)) {
+                    ZipUtil::deCode(inputPath,outputPath, this);
+                } else {
+                    setBarState(1);
+                    progressBar->setValue(progressBar->value() + 101);
+                    logWrite("解压输出目录设置错误，请查看是否设置的为文件");
+                }
+
             }
         } catch (const std::exception &e) {
             std::string errMsg = e.what();
@@ -386,8 +396,6 @@ void MainWindow::startWorkerThread(int type, std::string inputPath, std::string 
     worker.detach();
 }
 
-// --- 线程安全回调 ---
-
 void MainWindow::logWrite(std::string line)
 {
     QString timeStr = QDateTime::currentDateTime().toString("[hh:mm:ss] ");
@@ -395,7 +403,6 @@ void MainWindow::logWrite(std::string line)
 
     QMetaObject::invokeMethod(this, [=]() {
         logArea->appendPlainText(timeStr + qLine);
-        // 滚动到底部 (这里修复了之前的 maximum 报错，因为前面已经 include 了 QScrollBar)
         logArea->verticalScrollBar()->setValue(logArea->verticalScrollBar()->maximum());
     }, Qt::QueuedConnection);
 }
@@ -432,4 +439,25 @@ void MainWindow::setBarState(int type)
                                 "QProgressBar::chunk { border-radius: 10px; background-color: %1; }").arg(color);
         progressBar->setStyleSheet(style);
     }, Qt::QueuedConnection);
+}
+
+double MainWindow::get_directory_size(const std::filesystem::path& path) {
+    double total_size = 0;
+
+    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+        return 0; // 如果路径不存在或不是目录，返回 0
+    }
+    try {
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+            // 检查条目是否是常规文件
+            if (entry.is_regular_file()) {
+                // 累加文件大小
+                total_size += entry.file_size();
+            }
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "警告 (跳过): 无法访问: " << e.what() << std::endl;
+    }
+
+    return total_size;
 }
