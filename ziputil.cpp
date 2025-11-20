@@ -66,7 +66,43 @@ ZipUtil &ZipUtil::getInstance()
 //解压文件
 void ZipUtil::deCode(const std::string& filePath, const std::string& outputPath)
 {
-
+    namespace fs = std::filesystem;
+    using std::cout;
+    using std::endl;
+    using std::cerr;
+    std::ifstream infile(filePath,std::ios::in | std::ios::binary);
+    bool check = FileReaderUtil::readCheck(infile);
+    if (!check) {
+        cerr << "[WARN] CHECK FAIL" << endl;
+    } else {
+        cout << "CHECK OK" << endl;
+    }
+    std::vector<HuffmanNode> tree = FileReaderUtil::readTree(infile);
+    HuffmanTree huffmanTree(tree);
+    std::map<unsigned char, std::vector<bool>> bitMap = huffmanTree.getBitMap();
+    std::map<std::vector<bool>, unsigned char> reverseBitMap;
+    for (const auto& pair : bitMap) {
+        reverseBitMap[pair.second] = pair.first;
+    }
+    int type = FileReaderUtil::readType(infile);
+    if (type == 0) {
+        cout << "TYPE: DIR" << endl;
+        int ope = FileReaderUtil::readOpe(infile);
+        cout << "ope: " << ope << endl;
+        FileReaderUtil::readDir(infile,reverseBitMap,outputPath);
+    } else {
+        cout << "TYPE: FILE" << endl;
+        int ope = FileReaderUtil::readOpe(infile);
+        cout << "ope: " << ope << endl;
+        FileReaderUtil::readFileAndWrite(infile,reverseBitMap,outputPath);
+    }
+    int ope = FileReaderUtil::readOpe(infile);
+    if (ope == 3) {
+        cout << "DONE!" << endl;
+    } else {
+        cout << "END WITH SOME WRONG" << endl;
+    }
+    infile.close();
 }
 
 void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputPath) {
@@ -96,6 +132,7 @@ void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputP
     if (type == 0) {
         cout << "TYPE: DIR" << endl;
         int ope = FileReaderUtil::readOpe(infile);
+        cout << "ope: " << ope << endl;
         FileReaderUtil::readDir(infile,reverseBitMap,outputPath);
     } else {
         cout << "TYPE: FILE" << endl;
@@ -103,7 +140,12 @@ void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputP
         cout << "ope: " << ope << endl;
         FileReaderUtil::readFileAndWrite(infile,reverseBitMap,outputPath);
     }
-
+    int ope = FileReaderUtil::readOpe(infile);
+    if (ope == 3) {
+        cout << "DONE!" << endl;
+    } else {
+        cout << "END WITH SOME WRONG" << endl;
+    }
 }
 
 //压缩文件
@@ -112,6 +154,7 @@ void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath)
     namespace fs = std::filesystem;
     using std::cout;
     using std::endl;
+    using std::cerr;
     std::vector<int> freq(256,0);
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
@@ -132,7 +175,9 @@ void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath)
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
         FileWriterUtil::writeFile(outStream,bitMap,filePath);
     }
+    FileWriterUtil::writeOpe(outStream,FileWriterUtil::OPE_END);
     outStream.close();
+
 }
 
 void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputPath) {
@@ -164,6 +209,7 @@ void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputP
         FileWriterUtil::writeType(outStream,FileWriterUtil::TYPE_FILE);
         FileWriterUtil::writeFile(outStream,bitMap,filePath);
     }
+    FileWriterUtil::writeOpe(outStream,FileWriterUtil::OPE_END);
     outStream.close();
 
 }

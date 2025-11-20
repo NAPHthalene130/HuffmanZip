@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     const std::string testOutPath = "H:\\CODE\\CPP\\HuffmanZip\\TESTOUT\\enTESTDir.huff";
     const std::string testDeDir = "H:\\CODE\\CPP\\HuffmanZip\\TESTOUT";
     std::string inputPath = testPath.string();
-    ZipUtil::enCodeTest(inputPath, testOutPath);
-    ZipUtil::deCodeTest(testOutPath,testDeDir);
+    // ZipUtil::enCodeTest(inputPath, testOutPath);
+    // ZipUtil::deCodeTest(testOutPath,testDeDir);
     return a.exec();
 }

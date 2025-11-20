@@ -192,7 +192,6 @@ public:
         if (inputStream.fail() || totalBits == 0) {
             std::cerr << "[ERROR][FileReaderUtil-readFileAndWrite-1]" << "Totol bits read fail" << std::endl;
         }
-        std::cout << "READER:TOTAL BITS: " << totalBits << std::endl;
         BitStreamReader bitReader(inputStream, totalBits);
         std::vector<bool> currentCode;
         while (bitReader.getBitsReadCount() < totalBits) {
