@@ -10,11 +10,10 @@ HuffmanTree::HuffmanTree(std::vector<int> freqList)
     createTree(freqList);
 }
 HuffmanTree::HuffmanTree(const std::vector<HuffmanNode>& treeVector)
-    : huffmanTree(treeVector) // Initialize the tree vector
+    : huffmanTree(treeVector)
 {
     this->size = huffmanTree.size();
 
-    // 1. Find the root index
     this->rootIndex = -1;
     for (auto& node : this->huffmanTree) {
         if (node.getParentIndex() == -1) {
@@ -23,15 +22,10 @@ HuffmanTree::HuffmanTree(const std::vector<HuffmanNode>& treeVector)
         }
     }
 
-    // Handle empty tree
     if (this->huffmanTree.empty()) {
         return;
     }
 
-    // 2. Rebuild the charToBit map
-    // This logic is copied from your createTree function,
-    // but iterates over *all* nodes to find the leaves,
-    // which is more robust.
     for (int i = 0 ; i < huffmanTree.size(); i++) {
         if (!huffmanTree[i].isLeaf) {
             continue;

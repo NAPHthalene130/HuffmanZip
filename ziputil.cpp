@@ -8,7 +8,6 @@
 #include "FileReaderUtil.h"
 #include "FileWriterUtil.h"
 
-// 引入 MainWindow 头文件以使用其方法
 #include "mainwindow.h"
 
 ZipUtil::ZipUtil() {}
@@ -32,8 +31,8 @@ void ZipUtil::calFileFreq(std::vector<int> &freq, std::string filePath)
 {
     namespace fs = std::filesystem;
     int BUFFER_SIZE = 1024;
-    std::fstream inputFile(filePath, std::ios::in | std::ios::binary);
     fs::path p(filePath);
+    std::fstream inputFile(p, std::ios::in | std::ios::binary);
     if (!fs::exists(p)) {
         std::cerr << "[ERROR][ZipUtil-calFileFreq-1]: Path is not existing" << filePath << std::endl;
     }
@@ -83,7 +82,6 @@ void ZipUtil::deCode(const std::string& filePath, const std::string& outputPath,
     using std::endl;
     using std::cerr;
 
-    // ... 原有逻辑保持不变 ...
     std::ifstream infile(filePath,std::ios::in | std::ios::binary);
     bool check = FileReaderUtil::readCheck(infile);
 
@@ -137,14 +135,12 @@ void ZipUtil::deCode(const std::string& filePath, const std::string& outputPath,
 }
 
 void ZipUtil::deCodeTest(const std::string& filePath, const std::string& outputPath) {
-    // 测试代码保持不变或自行修改
     ZipUtil::deCode(filePath, outputPath, nullptr);
 }
 
 void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath, MainWindow* window)
 {
     window->logWrite("开始压缩...");
-    // TODO: 预估文件数量或大小，调用 window->setBarTotal(count);
 
     namespace fs = std::filesystem;
     using std::cout;
@@ -154,7 +150,8 @@ void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath,
     calFileFreq(freq,filePath);
     HuffmanTree huffTree(freq);
     std::map<unsigned char, std::vector<bool>> bitMap = huffTree.getBitMap();
-    std::ofstream outStream(outputPath, std::ios::out | std::ios::binary);
+    fs::path outP = (outputPath);
+    std::ofstream outStream(outP, std::ios::out | std::ios::binary);
     fs::path pathFile(filePath);
     if (!fs::exists(pathFile)) {
         std::cerr << "[WARN] File not exists" << endl;
@@ -183,6 +180,6 @@ void ZipUtil::enCode(const std::string& filePath, const std::string& outputPath,
 }
 
 void ZipUtil::enCodeTest(const std::string& filePath, const std::string& outputPath) {
-     // 测试代码保持不变或自行修改
+
     ZipUtil::enCode(filePath, outputPath, nullptr);
 }

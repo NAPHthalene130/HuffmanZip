@@ -35,7 +35,7 @@ public:
             int rightChildIndex = tree[i].getRightChildIndex();
             int value = tree[i].getValue();
             int isLeaf = tree[i].isLeaf ? 1 : 0;
-            //写入格式[自身下标][双亲下标][左下标][右下标][值][是否为叶子]
+            //写入格式[自身下标][双亲下标][左下标][右下标][char值][是否为叶子]
             outfileStream.write((char*)&index, sizeof(int));
             outfileStream.write((char*)&parentIndex, sizeof(int));
             outfileStream.write((char*)&leftChildIndex, sizeof(int));
@@ -133,7 +133,7 @@ public:
             std::cerr << "[ERROR][FileWriterUtil-writeFile-Header]" << "File write error (placeholder)." << std::endl;
             return;
         }
-        std::ifstream ifs(inFilePath, std::ios::binary);
+        std::ifstream ifs(path, std::ios::binary);
         if (!ifs.is_open()) {
             std::cerr << "[ERROR][FileWriterUtil-writeFile-1]" << "ifStream Error: Read file error" << std::endl;
             return;

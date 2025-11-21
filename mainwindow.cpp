@@ -1,7 +1,5 @@
 #include "mainwindow.h"
-#include "ziputil.h" // 确保这里包含你的 ZipUtil 头文件
-
-// 引入必要的 Qt 头文件
+#include "ziputil.h"
 #include <iostream>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -103,7 +101,7 @@ void MainWindow::setupUi()
 
     fileLayout->addWidget(dragDropFrame);
     fileLayout->addLayout(inputHBox);
-    fileLayout->addSpacing(10); // 稍微空一点
+    fileLayout->addSpacing(10);
     fileLayout->addLayout(outputHBox);
     mainLayout->addWidget(fileCard);
 

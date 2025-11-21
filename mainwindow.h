@@ -5,7 +5,6 @@
 #include <string>
 #include <filesystem>
 
-// 前置声明 Qt 类，加快编译
 class QLineEdit;
 class QPushButton;
 class QProgressBar;
@@ -23,7 +22,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    // --- ZipUtil 调用的公共接口 (线程安全) ---
 
     // 写入日志到界面下方
     void logWrite(std::string line);
@@ -68,7 +66,7 @@ private:
 
     // 私有辅助方法
     void setupUi();        // 布局初始化
-    void setupStyle();     // 加载美化样式表 (CSS)
+    void setupStyle();     // 加载美化样式表
 
     // 实际执行逻辑的入口
     void startWorkerThread(int type, std::string inputPath, std::string outputPath);
